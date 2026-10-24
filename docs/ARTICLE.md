@@ -127,4 +127,4 @@ Decider 2B is explicitly an experimentation starter, and that's exactly how it
 felt — like getting a new, very fast primitive and figuring out where it belongs.
 For WanderWise it belongs right in front of every tool call.
 
-**Repo:** <link> · **Demo video (under 3 min):** <link>
+**Repo:** https://github.com/tinhtq/wanderwise-decider · **Demo video (under 3 min):** _(link added after recording)_
