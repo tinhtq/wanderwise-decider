@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# WanderWise EC2 bootstrap. Runs once at first boot as root.
+# Installs everything ON THE INSTANCE. Logs to /var/log/wanderwise-bootstrap.log
+set -xeuo pipefail
+exec > >(tee -a /var/log/wanderwise-bootstrap.log) 2>&1
+
+echo "=== WanderWise bootstrap start: $(date -u) ==="
+
+export DEBIAN_FRONTEND=noninteractive
+APP_USER="ubuntu"
+APP_DIR="/opt/wanderwise"
+REGION="${aws_region}"
+BEDROCK_ROLE_ARN="${bedrock_role_arn}"
+
+# --- System packages -------------------------------------------------------
+apt-get update -y
+apt-get install -y python3-venv python3-pip git jq awscli
+
+# --- App directory ---------------------------------------------------------
+mkdir -p "$APP_DIR"
+chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+
+# --- Python virtualenv + dependencies --------------------------------------
+sudo -u "$APP_USER" bash <<'EOS'
+set -xeuo pipefail
+cd /opt/wanderwise
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip wheel setuptools
+
+# Core libraries for the project.
+pip install \
+  "strands-agents" \
+  "strands-decider" \
+  "boto3>=1.34" \
+  "python-dotenv>=1.0" \
+  "rich>=13.0"
+EOS
+
+# --- Pre-download Decider 2B weights so first decision is fast -------------
+sudo -u "$APP_USER" bash <<'EOS'
+set -xeuo pipefail
+cd /opt/wanderwise
+source .venv/bin/activate
+# Warm the Hugging Face cache for the decider model (best-effort).
+python3 - <<'PY' || echo "WARN: model prefetch skipped (will download on first use)"
+try:
+    from huggingface_hub import snapshot_download
+    snapshot_download(repo_id="StrandsAgents/strands-decider-2B-hobson-v19")
+    print("Decider 2B weights cached.")
+except Exception as e:
+    print(f"Prefetch failed, will lazy-load later: {e}")
+PY
+EOS
+
+# --- Write runtime environment defaults ------------------------------------
+cat > "$APP_DIR/.env" <<EOF
+AWS_REGION=$REGION
+BEDROCK_MODEL_ID=us.anthropic.claude-haiku-5-5
+# Cross-account role assumed to call Bedrock (set via Terraform var).
+BEDROCK_ASSUME_ROLE_ARN=$BEDROCK_ROLE_ARN
+DECIDER_MODEL_ID=StrandsAgents/strands-decider-2B-hobson-v19
+EOF
+chown "$APP_USER:$APP_USER" "$APP_DIR/.env"
+chmod 600 "$APP_DIR/.env"
+
+echo "=== WanderWise bootstrap done: $(date -u) ==="
+echo "READY" > "$APP_DIR/.bootstrap-complete"
+chown "$APP_USER:$APP_USER" "$APP_DIR/.bootstrap-complete"

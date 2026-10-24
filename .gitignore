@@ -1,0 +1,34 @@
+# Secrets & env
+.env
+*.pem
+*.tfvars
+!example.tfvars
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+src/*.egg-info/
+.pytest_cache/
+dist/
+build/
+
+# Model weights / caches
+models/
+*.gguf
+.cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+infra/.terraform.lock.hcl

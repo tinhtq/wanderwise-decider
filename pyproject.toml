@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wanderwise"
+version = "0.1.0"
+description = "A Strands + Amazon Bedrock travel planner that routes tool calls with Strands Decider 2B (tool-selection decision pattern)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "WanderWise" }]
+keywords = ["strands", "strands-decider", "bedrock", "agent", "tool-selection"]
+dependencies = [
+    "strands-agents>=1.0",
+    "boto3>=1.34",
+    "python-dotenv>=1.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+# The decision model itself. Runs a local serve process; GPU recommended.
+decider = ["strands-decider>=0.2"]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+wanderwise = "wanderwise.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+# BLE001: the router deliberately catches broad exceptions so a decision-model
+# hiccup or a user callback error can never crash the host agent (fail-safe).
+ignore = ["BLE001"]
