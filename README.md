@@ -6,6 +6,7 @@ Decider 2B** decides which tool to call.
 > **Hackathon:** Agent Experience Hackathon — Strands Decider
 > **Decision pattern:** Tool selection
 > **Tags:** `#strands-decider-2b` `#tool-selection`
+> **Demo video:** https://youtube.com/shorts/UfrEp9OFilI
 
 ---
 

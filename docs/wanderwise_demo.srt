@@ -1,0 +1,33 @@
+1
+00:00:01,000 --> 00:00:14,500
+WanderWise: Bedrock writes the answers, but WHICH tool to call
+goes to Strands Decider 2B.
+
+2
+00:00:16,000 --> 00:00:30,500
+No LLM here, just the decision model. Six requests, all routed
+correctly. ~94 ms each.
+
+3
+00:00:31,000 --> 00:00:41,500
+"Sleep near Shibuya" has no word like hotel, yet routes to
+find_hotels at 0.965. It reads intent.
+
+4
+00:00:42,000 --> 00:00:59,500
+The full agent: Bedrock proposes a tool, Decider 2B checks it.
+Agrees on find_hotels (0.96), proceeds.
+
+5
+00:01:02,000 --> 00:01:11,500
+Bedrock writes the hotel options. Router paths are all tested.
+
+6
+00:01:28,000 --> 00:01:41,000
+The LLM picked search_flights for a lodging ask. Decider
+redirected to find_hotels at 97%.
+
+7
+00:01:49,000 --> 00:02:04,000
+Reusable: drop DeciderToolRouter into any Strands agent.
+Small model decides, Bedrock talks.
